@@ -1,0 +1,21 @@
+version: '3.8'
+
+services:
+  journal:
+    image: postgres
+    restart: always
+    ports:
+      - "5432:5432"
+    environment:
+      POSTGRES_PASSWORD: ${DATABASE_PASS}
+    container_name: postgres_db
+    volumes:
+      - pgdata:/var/lib/postgresql/data
+
+  adminer:
+    image: adminer
+    restart: always
+    ports:
+      - 8080:8080
+volumes:
+  pgdata:
