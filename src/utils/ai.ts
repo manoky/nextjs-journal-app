@@ -2,6 +2,11 @@ import { OpenAI } from 'langchain/llms/openai'
 import { StructuredOutputParser } from 'langchain/output_parsers'
 import { z } from 'zod'
 import { PromptTemplate } from 'langchain/prompts'
+import { MemoryVectorStore } from 'langchain/vectorstores/memory'
+import { loadQARefineChain } from 'langchain/chains'
+import { Document } from 'langchain/document'
+import { OpenAIEmbeddings } from 'langchain/embeddings/openai'
+import { JournalEntry } from '@/types'
 
 const parser = StructuredOutputParser.fromZodSchema(
   z.object({
@@ -29,7 +34,6 @@ const parser = StructuredOutputParser.fromZodSchema(
 )
 
 const getPrompt = async (content: string) => {
-
   const format_instructions = parser.getFormatInstructions()
 
   const prompt = new PromptTemplate({
@@ -51,8 +55,32 @@ export const analyze = async (content: string) => {
     const input = await getPrompt(content)
     const model = new OpenAI({ temperature: 0, modelName: 'gpt-3.5-turbo' })
     const result = await model.call(input)
-   return parser.parse(result)
+    return parser.parse(result)
   } catch (error) {
     console.log(error)
   }
+}
+
+export const qa = async (
+  question: string,
+  entries: Pick<JournalEntry, 'id' | 'content' | 'createdAt'>[],
+) => {
+  const docs = entries.map(
+    (entry) =>
+      new Document({
+        pageContent: entry.content,
+        metadata: { source: entry.id, date: entry.createdAt, id: entry.id },
+      }),
+  )
+  const model = new OpenAI({ temperature: 0, modelName: 'gpt-3.5-turbo' })
+  const chain = loadQARefineChain(model)
+  const embeddings = new OpenAIEmbeddings()
+  const store = await MemoryVectorStore.fromDocuments(docs, embeddings)
+  const relevantDocs = await store.similaritySearch(question)
+  const res = await chain.call({
+    input_documents: relevantDocs,
+    question,
+  })
+
+  return res.output_text
 }

@@ -4,7 +4,7 @@ import { prisma } from '@/utils/db'
 import { JournalEntry } from '@/types'
 
 const getEntry = async (id: string): Promise<JournalEntry | null> => {
-  const user = await getUserByClerkId({})
+  const user = await getUserByClerkId()
   return prisma.journalEntry.findUnique({
     where: {
       id,

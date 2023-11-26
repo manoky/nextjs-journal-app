@@ -28,3 +28,21 @@ export const updateEntry = async (id: string, content: string) => {
   const resData = await res.json()
   return resData.data
 }
+
+export const askQuestion = async (question: string) => {
+  const res = await fetch(new Request(createURL(`/api/question`)), {
+    method: 'POST',
+    body: JSON.stringify({ question }),
+    headers: new Headers({
+      'Content-Type': 'application/json',
+    }),
+  })
+
+  if (!res.ok) {
+    console.log(await res.body)
+    throw new Error('Something went wrong!')
+  }
+
+  const resData = await res.json()
+  return resData.data
+}

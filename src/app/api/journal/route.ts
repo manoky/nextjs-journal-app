@@ -5,7 +5,7 @@ import { NextResponse } from 'next/server'
 import { Analysis } from '../../../types'
 
 export const POST = async () => {
-  const user = await getUserByClerkId({})
+  const user = await getUserByClerkId()
 
   const entry = await prisma.journalEntry.create({
     data: {
