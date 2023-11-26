@@ -13,14 +13,15 @@ export type User = {
 export type JournalEntry = {
   userId: string
   content: string
-  analysis?: Analysis
+  analysis: Analysis | null
 } & BaseType
 
 export type Analysis = {
   entryId: string
-  entry: JournalEntry
   mood: string
   summary: string
   color: string
   negative: boolean
+  subject: string
+  sentimentScore: number
 } & BaseType

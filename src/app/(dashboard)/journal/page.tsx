@@ -3,10 +3,12 @@ import { prisma } from '@/utils/db'
 import { EntryCard } from '@/components/EntryCard'
 import { NewEntryCard } from '@/components/NewEntryCard'
 import Link from 'next/link'
+import { analyze } from '../../../utils/ai'
 
 const getJournals = async () => {
   const user = await getUserByClerkId({})
-  return prisma.journalEntry.findMany({
+
+  const entries = await prisma.journalEntry.findMany({
     where: {
       userId: String(user.id),
     },
@@ -14,6 +16,7 @@ const getJournals = async () => {
       createdAt: 'desc',
     },
   })
+  return entries
 }
 const JournalPage = async () => {
   const journalEntries = await getJournals()

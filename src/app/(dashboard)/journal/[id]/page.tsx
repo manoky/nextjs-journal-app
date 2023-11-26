@@ -10,10 +10,14 @@ const getEntry = async (id: string): Promise<JournalEntry | null> => {
       id,
       userId: String(user.id),
     },
+    include: {
+      analysis: true,
+    },
   })
 }
 const EntryPage = async ({ params }: { params: { id: string } }) => {
   const entry = await getEntry(params.id)
+
   return (
     <div className="w-full h-full">
       {entry ? <Editor entry={entry} /> : null}
